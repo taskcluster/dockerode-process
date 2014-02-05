@@ -1,16 +1,45 @@
-suite('docker_run', function() {
+suite('docker process', function() {
   var DockerRun = require('./');
   var docker = require('./test/docker')();
 
-  var subject;
-  setup(function() {
-    subject = new DockerRun(docker, {
-      create: { Image: 'ubuntu', Cmd: ['/bin/bash', '-c', 'echo "xfoo" | tee /dev/stderr'] },
-      start: {}
+  suite('#exec - with tty', function() {
+    var subject;
+    setup(function() {
+      subject = new DockerRun(docker, {
+        create: {
+          Image: 'ubuntu',
+          Cmd: ['/bin/bash', '-c', 'echo stdout && echo stderr >&2'],
+          Tty: true
+        },
+        start: {}
+      });
+    });
+
+    test('single stream from tty', function() {
+      var expected = 'stdout\nstderr\n';
+      var result = '';
+
+      subject.stdout.on('data', function(value) {
+        result += value;
+      });
+
+      return subject.exec().then(function() {
+        // ensure there are only \n and no \r
+        result = result.replace('\r', '');
+        assert.equal(expected.trim(), result.trim());
+      });
     });
   });
 
-  suite('#exec', function() {
+  suite('#exec - without tty', function() {
+    var subject;
+    setup(function() {
+      subject = new DockerRun(docker, {
+        create: { Image: 'ubuntu', Cmd: ['/bin/bash', '-c', 'echo stdout && echo stderr >&2'] },
+        start: {}
+      });
+    });
+
     var stdoutBuffer;
     var stderrBuffer;
 
@@ -39,11 +68,11 @@ suite('docker_run', function() {
 
       return promise.then(
         function(status) {
-          console.log(stdoutBuffer, stderrBuffer);
           assert.ok(stderrBuffer.length, 'has stderr');
           assert.ok(stdoutBuffer.length, 'has stdout');
-          assert.equal(stdoutBuffer[0].trim(), 'xfoo');
-          assert.equal(stderrBuffer[0].trim(), 'xfoo');
+          assert.equal(stdoutBuffer[0].trim(), 'stdout');
+          assert.equal(stderrBuffer[0].trim(), 'stderr');
+          assert.ok(subject.container, 'has container');
 
           assert.equal(subject.exitCode, 0);
           assert.ok(didExit, 'stream is marked as exited');

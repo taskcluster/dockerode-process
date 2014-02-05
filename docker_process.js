@@ -2,6 +2,22 @@ var EventEmitter = require('events').EventEmitter;
 var streams = require('stream');
 var debug = require('debug')('docker-services:exec');
 
+function connectStreams(dockerProc, container, stream) {
+  // if its a tty stream then pipe the stream directly into stdout
+  if (dockerProc._createConfig.Tty) {
+    // http://docs.docker.io/en/latest/api/docker_remote_api_v1.8/#attach-to-a-container
+    stream.pipe(dockerProc.stdout);
+    return;
+  }
+
+  // attach the streams to out std(out|err) streams.
+  container.modem.demuxStream(
+    stream,
+    dockerProc.stdout,
+    dockerProc.stderr
+  );
+}
+
 /**
 Loosely modeled on node's own child_process object thought the interface to get
 the child process is different.
@@ -55,22 +71,14 @@ DockerProc.prototype = {
     return create.then(
       function onContainer(_container) {
         debug('created container', _container.id);
-        container = docker.getContainer(_container.id);
+        this.container = container = docker.getContainer(_container.id);
         return container.attach(attachConfig);
       }.bind(this)
     ).then(
       function attachedContainer(stream) {
         debug('attached');
-
-        // attach the streams to out std(out|err) streams.
-        container.modem.demuxStream(
-          stream,
-          this.stdout,
-          this.stderr
-        );
-
-        var start = container.start(this._startConfig);
-        return start;
+        connectStreams(this, container, stream);
+        return container.start(this._startConfig);
       }.bind(this)
     ).then(
       function startedContainer() {
