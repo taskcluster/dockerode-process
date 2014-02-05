@@ -30,7 +30,7 @@ Emitted when docker container stops
 
 Identical to `exit`
 
-### dockerProc.run
+### `dockerProc.run`
 
 Create then start the container and return a promise for its exit
 status.
@@ -42,6 +42,6 @@ dockerProc.run().then(
 )
 ```
 
-### dockerProc.remove
+### `dockerProc.remove`
 
 Remove the docker container.
