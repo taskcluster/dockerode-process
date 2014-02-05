@@ -75,6 +75,7 @@ suite('docker process', function() {
           assert.ok(subject.container, 'has container');
 
           assert.equal(subject.exitCode, 0);
+          assert.equal(status, subject.exitCode);
           assert.ok(didExit, 'stream is marked as exited');
         }
       );

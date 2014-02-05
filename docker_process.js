@@ -1,6 +1,6 @@
 var EventEmitter = require('events').EventEmitter;
 var streams = require('stream');
-var debug = require('debug')('docker-services:exec');
+var debug = require('debug')('docker-process');
 var Promise = require('promise');
 
 function connectStreams(dockerProc, container, stream) {
@@ -101,7 +101,6 @@ DockerProc.prototype = {
 
       function startedContainer() {
         this.started = true;
-        this.emit('started');
         debug('initiate wait for container');
         return container.wait();
       }.bind(this)
@@ -116,7 +115,7 @@ DockerProc.prototype = {
         // close is the same as exit in this context so emit that now
         this.emit('close', this.exitCode);
 
-        return result;
+        return this.exitCode;
       }.bind(this)
 
     );
