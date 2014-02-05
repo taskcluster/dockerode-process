@@ -9,7 +9,7 @@ Root module exported from `require('docker-process')`.
 
 ```js
 var DockerProcess = require('docker')
-var process = new DockerProcess(
+var dockerProc = new DockerProcess(
   // dockerode-promise instance
   docker,
   {
