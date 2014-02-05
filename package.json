@@ -1,10 +1,10 @@
 {
   "name": "dockerode-process",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "ChildProcess like interface for docker containers",
   "main": "docker_process.js",
   "scripts": {
-    "test": "mocha *_test.js"
+    "test": "./node_modules/.bin/mocha *_test.js"
   },
   "repository": {
     "type": "git",
