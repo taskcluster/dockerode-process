@@ -8,7 +8,7 @@ ChildProcess like interface for docker containers.
 Root module exported from `require('docker-process')`.
 
 ```js
-var DockerProcess = require('docker')
+var DockerProcess = require('docker');
 var dockerProc = new DockerProcess(
   // dockerode-promise instance
   docker,
@@ -30,7 +30,23 @@ Emitted when docker container stops
 
 Identical to `exit`
 
-### `dockerProc.run`
+### `dockerProc.stdout`
+
+Readable stream for stdout.
+
+### `dockerProc.stderr`
+
+Readable stream for stderr.
+
+### `dockerProc.id`
+
+Container id populated during run.
+
+### `dockerProc.exitCode`
+
+Exit code populated after run.
+
+### `dockerProc.run()`
 
 Create then start the container and return a promise for its exit
 status.
@@ -42,6 +58,32 @@ dockerProc.run().then(
 )
 ```
 
-### `dockerProc.remove`
+### `dockerProc.remove()`
 
 Remove the docker container.
+
+## Example Usage
+
+```js
+var DockerProcess = require('docker');
+var dockerProc = new DockerProcess(
+  // dockerode-promise instance
+  docker,
+  {
+    // http://docs.docker.io/en/latest/api/docker_remote_api_v1.8/#create-a-container
+    create: {
+      Image: 'ubuntu',
+      Cmd: ['/bin/bash', '-c', 'echo "xfoo"']
+    },
+
+    // http://docs.docker.io/en/latest/api/docker_remote_api_v1.8/#start-a-container
+    start: {}
+  }
+);
+
+dockerProc.run();
+dockerProc.stdout.pipe(process.stdout);
+dockerProc.once('exit', function(code) {
+  process.exit(code);  
+})
+```
