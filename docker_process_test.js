@@ -2,7 +2,7 @@ suite('docker process', function() {
   var DockerRun = require('./');
   var docker = require('./test/docker')();
 
-  suite('#exec - with tty', function() {
+  suite('#run - with tty', function() {
     var subject;
     setup(function() {
       subject = new DockerRun(docker, {
@@ -23,7 +23,7 @@ suite('docker process', function() {
         result += value;
       });
 
-      return subject.exec().then(function() {
+      return subject.run().then(function() {
         // ensure there are only \n and no \r
         result = result.replace('\r', '');
         assert.equal(expected.trim(), result.trim());
@@ -31,7 +31,7 @@ suite('docker process', function() {
     });
   });
 
-  suite('#exec - without tty', function() {
+  suite('#run - without tty', function() {
     var subject;
     setup(function() {
       subject = new DockerRun(docker, {
@@ -51,7 +51,7 @@ suite('docker process', function() {
         buffer.push(item.toString());
       }
 
-      var promise = subject.exec();
+      var promise = subject.run();
 
       assert.ok(subject.stdout, 'has stdout, stream');
       assert.ok(subject.stderr, 'has stderr stream');
@@ -80,4 +80,32 @@ suite('docker process', function() {
       );
     });
   });
+
+  suite('#remove', function() {
+    var subject;
+    setup(function() {
+      subject = new DockerRun(docker, {
+        create: { Image: 'ubuntu', Cmd: ['/bin/bash', '-c', 'echo stdout && echo stderr >&2'] },
+        start: {}
+      });
+
+      return subject.run();
+    });
+
+    setup(function() {
+      return subject.remove();
+    });
+
+    test('after remove', function() {
+      return docker.getContainer(subject.id).inspect().then(
+        function(value) {
+          throw new Error('should not be able to find record');
+        },
+        function() {
+          // yey it works
+        }
+      );
+    });
+  });
+
 });

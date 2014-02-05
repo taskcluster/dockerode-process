@@ -1,6 +1,7 @@
 var EventEmitter = require('events').EventEmitter;
 var streams = require('stream');
 var debug = require('debug')('docker-services:exec');
+var Promise = require('promise');
 
 function connectStreams(dockerProc, container, stream) {
   // if its a tty stream then pipe the stream directly into stdout
@@ -52,10 +53,21 @@ DockerProc.prototype = {
   exitCode: null,
 
   /**
+  Remove the docker container.
+  */
+  remove: function() {
+    if (!this.container) {
+      return Promise.from(null);
+    }
+    return this.container.remove();
+  },
+
+  /*
+  /**
   Run the docker process and resolve the promise on complete.
   */
-  exec: function() {
-    debug('exec', this._createConfig, this._startConfig);
+  run: function() {
+    debug('run', this._createConfig, this._startConfig);
 
     var docker = this.docker;
 
@@ -69,23 +81,33 @@ DockerProc.prototype = {
     var container;
 
     return create.then(
+
       function onContainer(_container) {
         debug('created container', _container.id);
+        this.id = _container.id;
         this.container = container = docker.getContainer(_container.id);
         return container.attach(attachConfig);
       }.bind(this)
+
     ).then(
+
       function attachedContainer(stream) {
         debug('attached');
         connectStreams(this, container, stream);
         return container.start(this._startConfig);
       }.bind(this)
+
     ).then(
+
       function startedContainer() {
+        this.started = true;
+        this.emit('started');
         debug('initiate wait for container');
         return container.wait();
-      }
+      }.bind(this)
+
     ).then(
+
       function markExit(result) {
         this.exitCode = result.StatusCode;
 
@@ -93,7 +115,10 @@ DockerProc.prototype = {
         this.emit('exit', this.exitCode);
         // close is the same as exit in this context so emit that now
         this.emit('close', this.exitCode);
+
+        return result;
       }.bind(this)
+
     );
   }
 };
