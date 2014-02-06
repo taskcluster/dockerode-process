@@ -46,10 +46,12 @@ Container id populated during run.
 
 Exit code populated after run.
 
-### `dockerProc.run()`
+### `dockerProc.run([options])`
 
-Create then start the container and return a promise for its exit
-status.
+Pull the image from the docker index then create then start the container and return a promise for its exit status.
+
+Options:
+  - (Boolean) `pull=true` when false assume the image is cached.
 
 ```js
 dockerProc.run().then(

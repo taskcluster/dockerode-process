@@ -2,6 +2,35 @@ suite('docker process', function() {
   var DockerRun = require('./');
   var docker = require('./test/docker')();
 
+  suite('#run - with pull', function() {
+    var subject;
+    setup(function() {
+      subject = new DockerRun(docker, {
+        create: {
+          Image: 'ubuntu',
+          Cmd: ['/bin/bash', '-c', 'echo stdout && echo stderr >&2'],
+          Tty: true
+        },
+        start: {}
+      });
+    });
+
+    test('single stream with pulling', function() {
+      var expected = 'stdout\nstderr\n';
+      var result = '';
+
+      subject.stdout.on('data', function(value) {
+        result += value;
+      });
+
+      return subject.run().then(function() {
+        result = result.replace(/\r/g, '');
+        assert.ok(result.indexOf('ubuntu') !== -1, 'mentions docker image');
+        assert.ok(result.indexOf(expected) !== -1, 'has stdout/stderr');
+      });
+    });
+  });
+
   suite('#run - with tty', function() {
     var subject;
     setup(function() {
@@ -15,7 +44,7 @@ suite('docker process', function() {
       });
     });
 
-    test('single stream from tty', function() {
+    test('single stream from tty (no pull)', function() {
       var expected = 'stdout\nstderr\n';
       var result = '';
 
@@ -23,7 +52,7 @@ suite('docker process', function() {
         result += value;
       });
 
-      return subject.run().then(function() {
+      return subject.run({ pull: false }).then(function() {
         // ensure there are only \n and no \r
         result = result.replace('\r', '');
         assert.equal(expected.trim(), result.trim());
@@ -31,7 +60,7 @@ suite('docker process', function() {
     });
   });
 
-  suite('#run - without tty', function() {
+  suite('#run - without tty (no pull)', function() {
     var subject;
     setup(function() {
       subject = new DockerRun(docker, {
@@ -51,7 +80,7 @@ suite('docker process', function() {
         buffer.push(item.toString());
       }
 
-      var promise = subject.run();
+      var promise = subject.run({ pull: false });
 
       assert.ok(subject.stdout, 'has stdout, stream');
       assert.ok(subject.stderr, 'has stderr stream');

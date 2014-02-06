@@ -1,6 +1,7 @@
 var EventEmitter = require('events').EventEmitter;
 var streams = require('stream');
 var debug = require('debug')('docker-process');
+var utils = require('./utils');
 var Promise = require('promise');
 
 function connectStreams(dockerProc, container, stream) {
@@ -62,11 +63,7 @@ DockerProc.prototype = {
     return this.container.remove();
   },
 
-  /*
-  /**
-  Run the docker process and resolve the promise on complete.
-  */
-  run: function() {
+  _run: function() {
     debug('run', this._createConfig, this._startConfig);
 
     var docker = this.docker;
@@ -119,6 +116,35 @@ DockerProc.prototype = {
       }.bind(this)
 
     );
+  },
+
+  /**
+  Run the docker process and resolve the promise on complete.
+
+  @param {Object} options for running the container.
+  @param {Boolean} [options.pull=true] when true pull the image and prepend the
+                   download details to stdout.
+  */
+  run: function(options) {
+    options = options || {};
+    if (!('pull' in options)) options.pull = true;
+
+    // no pull means no extra stream processing...
+    if (!options.pull) return this._run();
+
+    return new Promise(function(accept, reject) {
+      // pull the image (or use on in the cache and output status in stdout)
+      var pullStream = utils.streamImage(this.docker, this._createConfig.Image);
+
+      // pipe the pull stream into stdout but don't end
+      pullStream.pipe(this.stdout, { end: false });
+
+      pullStream.once('error', reject);
+      pullStream.once('end', function() {
+        pullStream.removeListener('error', reject);
+        this._run().then(accept, reject);
+      }.bind(this));
+    }.bind(this));
   }
 };
 
