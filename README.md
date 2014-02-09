@@ -84,6 +84,12 @@ var dockerProc = new DockerProcess(
 );
 
 dockerProc.run();
+
+// a reference to the container can be obtained by waiting for the
+// container event
+dockerProc.once('container', function(container) {
+});
+
 dockerProc.stdout.pipe(process.stdout);
 dockerProc.once('exit', function(code) {
   process.exit(code);  
