@@ -1,9 +1,37 @@
 suite('docker process', function() {
   var DockerRun = require('./');
   var docker = require('./test/docker')();
+  var subject;
+
+  teardown(function() {
+    return subject && subject.remove();
+  });
+
+  suite('emits container', function() {
+    setup(function() {
+      subject = new DockerRun(docker, {
+        create: {
+          Image: 'ubuntu',
+          Cmd: ['/bin/bash', '-c', 'echo stdout && echo stderr >&2'],
+          Tty: true
+        },
+        start: {}
+      });
+    });
+
+    test('once emitted', function(done) {
+      subject.once('container', function(container) {
+        assert.ok(subject.container, 'has container');
+        assert.equal(subject.container, container);
+        done();
+      });
+
+      subject.run();
+    });
+  });
+
 
   suite('#run - with pull', function() {
-    var subject;
     setup(function() {
       subject = new DockerRun(docker, {
         create: {
@@ -32,7 +60,6 @@ suite('docker process', function() {
   });
 
   suite('#run - with tty', function() {
-    var subject;
     setup(function() {
       subject = new DockerRun(docker, {
         create: {
@@ -61,7 +88,6 @@ suite('docker process', function() {
   });
 
   suite('#run - without tty (no pull)', function() {
-    var subject;
     setup(function() {
       subject = new DockerRun(docker, {
         create: { Image: 'ubuntu', Cmd: ['/bin/bash', '-c', 'echo stdout && echo stderr >&2'] },
@@ -112,7 +138,6 @@ suite('docker process', function() {
   });
 
   suite('#remove', function() {
-    var subject;
     setup(function() {
       subject = new DockerRun(docker, {
         create: { Image: 'ubuntu', Cmd: ['/bin/bash', '-c', 'echo stdout && echo stderr >&2'] },
@@ -132,6 +157,8 @@ suite('docker process', function() {
           throw new Error('should not be able to find record');
         },
         function() {
+          // set subject to null to avoid multiple remove's
+          subject = null;
           // yey it works
         }
       );

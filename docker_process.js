@@ -83,6 +83,7 @@ DockerProc.prototype = {
         debug('created container', _container.id);
         this.id = _container.id;
         this.container = container = docker.getContainer(_container.id);
+        this.emit('container', container);
         return container.attach(attachConfig);
       }.bind(this)
 
