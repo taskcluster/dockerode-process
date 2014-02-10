@@ -30,6 +30,14 @@ Emitted when docker container stops
 
 Identical to `exit`
 
+### event: `container`
+
+Emitted once the container is created (not running yet)
+
+### event: `container start`
+
+Emitted once the container is started
+
 ### `dockerProc.stdout`
 
 Readable stream for stdout.

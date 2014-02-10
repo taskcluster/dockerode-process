@@ -4,7 +4,8 @@ suite('docker process', function() {
   var subject;
 
   teardown(function() {
-    return subject && subject.remove();
+    // attempt a remove but don't fail if it does
+    return subject && subject.remove().then(null, function() {});
   });
 
   suite('emits container', function() {
@@ -20,8 +21,16 @@ suite('docker process', function() {
     });
 
     test('once emitted', function(done) {
+      var created = false;
+
       subject.once('container', function(container) {
+        created = true;
         assert.ok(subject.container, 'has container');
+        assert.equal(subject.container, container);
+      });
+
+      subject.once('container start', function(container) {
+        assert.ok(created);
         assert.equal(subject.container, container);
         done();
       });
@@ -29,7 +38,6 @@ suite('docker process', function() {
       subject.run();
     });
   });
-
 
   suite('#run - with pull', function() {
     setup(function() {
