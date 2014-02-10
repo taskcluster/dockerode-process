@@ -1,6 +1,6 @@
 {
   "name": "dockerode-process",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "ChildProcess like interface for docker containers",
   "main": "docker_process.js",
   "scripts": {
