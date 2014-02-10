@@ -90,7 +90,6 @@ DockerProc.prototype = {
     ).then(
 
       function attachedContainer(stream) {
-        this.emit('container start', this.container);
         debug('attached');
         connectStreams(this, container, stream);
         return container.start(this._startConfig);
@@ -99,6 +98,7 @@ DockerProc.prototype = {
     ).then(
 
       function startedContainer() {
+        this.emit('container start', this.container);
         this.started = true;
         debug('initiate wait for container');
         return container.wait();
