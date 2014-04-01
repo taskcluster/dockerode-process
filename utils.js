@@ -99,7 +99,7 @@ function streamImage(docker, image) {
     function missingImage() {
       debug('image is missing pull', image);
       // image is missing so pull it
-      docker.pull(image).then(function(rawPullStream) {
+      return docker.pull(image).then(function(rawPullStream) {
         rawPullStream.pipe(pullStream);
       });
     }
