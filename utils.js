@@ -103,7 +103,7 @@ function streamImage(docker, image) {
   docker.getImage(image).inspect().then(
     function inspection(gotImg) {
       // push a value directly to the result without the transform.
-      pullStream.push(image + ' exists in the cache.\n');
+      pullStream.push(image + ' exists in the cache.\r\n');
       // end the stream.
       pullStream.end();
     },
