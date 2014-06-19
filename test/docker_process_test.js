@@ -1,6 +1,7 @@
 suite('docker process', function() {
-  var DockerRun = require('./');
-  var docker = require('./test/docker')();
+  var DockerRun = require('../');
+  var docker    = require('./docker')();
+  var assert    = require('assert');
   var subject;
 
   teardown(function() {

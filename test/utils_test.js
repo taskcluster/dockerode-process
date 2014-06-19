@@ -1,7 +1,8 @@
 suite('docker_utils', function() {
-  var Promise = require('promise');
-  var docker = require('./test/docker')();
-  var subject = require('./utils');
+  var Promise   = require('promise');
+  var docker    = require('./docker')();
+  var subject   = require('../utils');
+  var assert    = require('assert');
 
   suite('#streamImage', function() {
     // image with a specific tag
