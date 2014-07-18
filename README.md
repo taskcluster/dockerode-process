@@ -75,7 +75,7 @@ Remove the docker container.
 ## Example Usage
 
 ```js
-var DockerProcess = require('docker-process');
+var DockerProcess = require('dockerode-process');
 var dockerProc = new DockerProcess(
   // dockerode-promise instance
   docker,
