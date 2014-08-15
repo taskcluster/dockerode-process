@@ -68,24 +68,24 @@ module.exports.removeImageIfExists = removeImageIfExists;
 /**
 Returns a promise for the result of the image pull (no output stream).
 
+@param {DockerodePromise} docker wrapper.
+@param {String} image docker image name.
+@param {Object} [options] docker pull options.
 @return Promise
 */
-function pullImage(docker, image) {
+function pullImage(docker, image, options) {
   return new Promise(function(accept, reject) {
-    docker.pull(image).then(
-      function(stream) {
-        var pullStatusStream = new PullStatusStream();
-        stream.pipe(pullStatusStream);
+    docker.pull(image).then(function(stream) {
+      var pullStatusStream = new PullStatusStream();
+      stream.pipe(pullStatusStream);
 
-        pullStatusStream.on('data', function(value) {
-          debug('pull image', value.toString());
-        });
+      pullStatusStream.on('data', function(value) {
+        debug('pull image', value.toString());
+      });
 
-        pullStatusStream.once('error', reject);
-        pullStatusStream.once('end', accept);
-      },
-      reject
-    );
+      pullStatusStream.once('error', reject);
+      pullStatusStream.once('end', accept);
+    });
   });
 }
 
@@ -93,9 +93,13 @@ module.exports.pullImage = pullImage;
 
 /**
 Returns a stream suitable for stdout for the download progress (or the cache).
-@return {Stream}
+
+@param {DockerodePromise} docker wrapper.
+@param {String} image docker image name.
+@param {Object} [options] docker pull options.
+@return {Promise[Stream]}
 */
-function streamImage(docker, image) {
+function pullImageIfMissing(docker, image, options) {
   debug('ensure image', image);
   var pullStream = new PullStatusStream();
 
@@ -111,7 +115,7 @@ function streamImage(docker, image) {
     function missingImage() {
       debug('image is missing pull', image);
       // image is missing so pull it
-      return docker.pull(image).then(function(rawPullStream) {
+      return docker.pull(image, options || {}).then(function(rawPullStream) {
         rawPullStream.pipe(pullStream);
       });
     }
@@ -125,4 +129,4 @@ function streamImage(docker, image) {
   return pullStream;
 }
 
-module.exports.streamImage = streamImage;
+module.exports.pullImageIfMissing = pullImageIfMissing;

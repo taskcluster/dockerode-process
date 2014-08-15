@@ -136,7 +136,8 @@ DockerProc.prototype = {
 
     return new Promise(function(accept, reject) {
       // pull the image (or use on in the cache and output status in stdout)
-      var pullStream = utils.streamImage(this.docker, this._createConfig.Image);
+      var pullStream =
+        utils.pullImageIfMissing(this.docker, this._createConfig.Image);
 
       // pipe the pull stream into stdout but don't end
       pullStream.pipe(this.stdout, { end: false });

@@ -4,9 +4,9 @@ suite('docker_utils', function() {
   var subject   = require('../utils');
   var assert    = require('assert');
 
-  suite('#streamImage', function() {
+  suite('#pullImageIfMissing', function() {
     // image with a specific tag
-    var image = 'lightsofapollo/test-taskenv:pass';
+    var image = 'lightsofapollo/busybox';
     setup(function() {
       return subject.removeImageIfExists(docker, image);
     });
@@ -14,7 +14,7 @@ suite('docker_utils', function() {
     test('when image exists', function(done) {
       subject.pullImage(docker, image).then(
         function onStream() {
-          var stream = subject.streamImage(docker, image);
+          var stream = subject.pullImageIfMissing(docker, image);
           stream.resume();
 
           stream.once('data', function(value) {
@@ -28,14 +28,14 @@ suite('docker_utils', function() {
     });
 
     test('when image does not exist', function(done) {
-      var stream = subject.streamImage(docker, image);
-      stream.resume();
+      var stream = subject.pullImageIfMissing(docker, image);
+      stream.on('data', function() {});
+      //stream.resume();
       stream.once('end', function() {
-        docker.getImage(image).inspect().then(
-          function image(result) {
-            assert.ok(result);
-            done();
-          },
+        docker.getImage(image).inspect().then(function image(result) {
+          assert.ok(result);
+          done();
+        }).catch(
           done
         );
       });
