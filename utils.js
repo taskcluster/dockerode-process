@@ -24,12 +24,13 @@ PullStatusStream.prototype = {
       if (json.status == 'Downloading') {
         if (this.__layerStarts[json.id] === undefined) {
           this.__layerStarts[json.id] = new Date();
-          this.push('Started download of ' + json.id + '\r\n');
+          this.push(json.id + ' - Started downloading\r\n');
         }
       } else if (json.status == 'Download complete') {
         if (this.__layerStarts[json.id] !== undefined) {
           var s = Math.abs(new Date() - this.__layerStarts[json.id]) / 1000;
-          this.push(json.id + ' - Downloaded in ' + s + ' seconds\r\n');
+          var ms = Math.abs(new Date() - this.__layerStarts[json.id]) % 1000;
+          this.push(json.id + ' - Downloaded in ' + s + '.' + 'ms' + ' seconds\r\n');
         }
       }
       return done();
