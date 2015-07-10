@@ -21,14 +21,10 @@ PullStatusStream.prototype = {
     }
 
     if (json.id) {
-      var str = json.id + ' - ' + json.status;
-      if (json.progress) str += ' ' + json.progress;
-      str += '\r\n';
-      this.push(str);
-
       if (json.status == 'Downloading') {
         if (this.__layerStarts[json.id] === undefined) {
           this.__layerStarts[json.id] = new Date();
+          this.push('Started download of ' + json.id + '\r\n');
         }
       } else if (json.status == 'Download complete') {
         if (this.__layerStarts[json.id] !== undefined) {
