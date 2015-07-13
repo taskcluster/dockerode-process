@@ -29,8 +29,7 @@ PullStatusStream.prototype = {
       } else if (json.status == 'Download complete') {
         if (this.__layerStarts[json.id] !== undefined) {
           var s = Math.abs(new Date() - this.__layerStarts[json.id]) / 1000;
-          var ms = Math.abs(new Date() - this.__layerStarts[json.id]) % 1000;
-          this.push(json.id + ' - Downloaded in ' + s + '.' + 'ms' + ' seconds\r\n');
+          this.push(json.id + ' - Downloaded in ' + s + ' seconds\r\n');
         }
       }
       return done();
