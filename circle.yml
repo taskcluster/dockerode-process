@@ -1,0 +1,5 @@
+machine:
+  node:
+    version: 0.12.3
+  services:
+    - docker
