@@ -35,7 +35,9 @@ suite('docker_utils', function() {
         docker.getImage(image).inspect().then(function image(result) {
           assert.ok(result);
           done();
-        }, done);
+        }).catch(
+          done
+        );
       });
     });
 
