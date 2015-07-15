@@ -58,7 +58,7 @@ DockerProc.prototype = {
   */
   remove: function() {
     if (!this.container) {
-      return Promise.from(null);
+      return Promise.resolve(null);
     }
     return this.container.remove();
   },
