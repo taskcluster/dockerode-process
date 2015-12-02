@@ -13,14 +13,19 @@ var dockerProc = new DockerProcess(
   // dockerode-promise instance
   docker,
   {
-    // http://docs.docker.io/en/latest/api/docker_remote_api_v1.8/#create-a-container
+    // For POST /containers/create
     create: {},
 
-    // http://docs.docker.io/en/latest/api/docker_remote_api_v1.8/#start-a-container
+    // For POST /containers/(id)/start
     start: {}
   }
 );
 ```
+
+See
+
+ * https://docs.docker.com/engine/reference/api/docker_remote_api_v1.20/#create-a-container
+ * https://docs.docker.com/engine/reference/api/docker_remote_api_v1.20/#start-a-container
 
 ### event: `exit`
 
