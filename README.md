@@ -10,7 +10,7 @@ Root module exported from `require('docker-process')`.
 ```js
 var DockerProcess = require('docker');
 var dockerProc = new DockerProcess(
-  // dockerode-promise instance
+  // dockerode instance
   docker,
   {
     // For POST /containers/create
@@ -82,7 +82,7 @@ Remove the docker container.
 ```js
 var DockerProcess = require('dockerode-process');
 var dockerProc = new DockerProcess(
-  // dockerode-promise instance
+  // dockerode instance
   docker,
   {
     // http://docs.docker.io/en/latest/api/docker_remote_api_v1.8/#create-a-container

@@ -2,7 +2,6 @@ var EventEmitter = require('events').EventEmitter;
 var streams = require('stream');
 var debug = require('debug')('docker-process');
 var utils = require('./utils');
-var Promise = require('promise');
 
 function connectStreams(dockerProc, container, stream) {
   // if its a tty stream then pipe the stream directly into stdout

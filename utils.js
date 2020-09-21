@@ -1,4 +1,3 @@
-var Promise = require('promise');
 var stream = require('stream');
 var debug = require('debug')('docker-process:utils');
 

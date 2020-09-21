@@ -1,5 +1,4 @@
 suite('docker_utils', function() {
-  var Promise   = require('promise');
   var docker    = require('./docker')();
   var subject   = require('../utils');
   var assert    = require('assert');
